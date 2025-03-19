@@ -30,31 +30,55 @@
                 </div>
             </li>
         </ul>
-        <ul class="lg:flex justify-center space-x-7 font-semibold hidden">
-            <li class="relative">
+        <ul class="lg:flex justify-center space-x-7 font-semibold">
+            <li v-if="!isAuthenticated" class="relative">
                 <router-link to="/login" class="text-lg">Login</router-link>
             </li>
-            <li class="relative">
+            <li v-if="!isAuthenticated" class="relative">
                 <router-link to="/register" class="text-lg">Register</router-link>
+            </li>
+            <li v-if="isAuthenticated" class="relative">
+                <router-link to="/profile" class="text-lg">Profile</router-link>
+            </li>
+            <li v-if="isAuthenticated" class="relative">
+                <button @click="logout" class="text-lg">Logout</button>
             </li>
         </ul>
     </nav>
 </template>
 
-<script>
-export default {
-    data() {
-        return {
-            isMenuOpen: false
+<script lang="ts">
+import { defineComponent, computed, ref } from "vue";
+import { useRoute, useRouter } from "vue-router";
+
+export default defineComponent({
+    setup() {
+        const isMenuOpen = ref(false);
+        const route = useRoute();
+        const router = useRouter();
+
+        const isAuthenticated = computed(() => !!sessionStorage.getItem("userToken"));
+
+        const toggleMenu = () => {
+            isMenuOpen.value = !isMenuOpen.value;
         };
-    },
-    methods: {
-        toggleMenu() {
-            this.isMenuOpen = !this.isMenuOpen;
-        },
-        isActive(route) {
-            return this.$route.path === route;
-        }
+
+        const isActive = (path: string) => {
+            return route.path === path;
+        };
+
+        const logout = () => {
+            sessionStorage.removeItem("userToken");
+            router.push("/login");
+        };
+
+        return {
+            isMenuOpen,
+            isAuthenticated,
+            toggleMenu,
+            isActive,
+            logout
+        };
     }
-};
+});
 </script>

@@ -21,6 +21,6 @@ export default defineComponent({
 
 <style>
 body {
-  background: rgb(229, 229, 229);
+  background: rgb(215, 215, 215);
 }
 </style>
