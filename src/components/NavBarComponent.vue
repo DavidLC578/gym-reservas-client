@@ -9,8 +9,8 @@
                 </svg>
             </button>
         </div>
-        <ul :class="{ 'hidden': !isMenuOpen, 'flex-col': isMenuOpen }"
-            class="flex lg:flex-row justify-center  md:items-center lg:space-x-7 font-semibold py-2 space-y-2">
+        <ul :class="{ 'hidden': !isMenuOpen, 'flex flex-col': isMenuOpen }"
+            class="lg:flex lg:flex-row justify-center md:items-center lg:space-x-7 font-semibold py-2 space-y-2 lg:space-y-0">
             <li :class="{ 'relative': true }">
                 <router-link to="/" class="text-lg">Welcome</router-link>
                 <div
