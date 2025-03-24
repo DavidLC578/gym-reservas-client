@@ -14,32 +14,47 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, inject } from 'vue';
+import { defineComponent, ref, reactive } from 'vue';
 import { User } from '../interfaces/User';
 import { register } from '../services/AuthService';
 import { useRouter } from 'vue-router';
 
 export default defineComponent({
-    data() {
-        return {
-            user: {} as User
-        };
-    },
-    mounted() {
+    setup() {
         const router = useRouter();
-        const token = sessionStorage.getItem('userToken');
-        if (token) {
-            router.push({ name: 'Welcome' });
-        }
-    },
-    methods: {
-        async handleRegister() {
-            const res = await register(this.user);
-            if (res.status === 201) {
-                sessionStorage.setItem('userToken', res.data.token);
-                this.$router.push({ name: 'Welcome' });
+        const user = reactive<User>({
+            name: '',
+            email: '',
+            password: ''
+        });
+        const error = ref<string | null>(null);
+
+        const handleRegister = async () => {
+            try {
+                const res = await register(user);
+                if (res.status === 201) {
+                    sessionStorage.setItem('userToken', res.data.token);
+                    router.push({ name: 'Welcome' });
+                }
+            } catch (err) {
+                error.value = err instanceof Error ? err.message : 'Registration failed';
             }
-        }
+        };
+
+        const checkAuth = () => {
+            const token = sessionStorage.getItem('userToken');
+            if (token) {
+                router.push({ name: 'Welcome' });
+            }
+        };
+
+        checkAuth();
+
+        return {
+            user,
+            error,
+            handleRegister
+        };
     }
 });
 </script>

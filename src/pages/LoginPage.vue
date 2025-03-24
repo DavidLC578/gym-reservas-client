@@ -12,32 +12,47 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
+import { defineComponent, ref, reactive } from 'vue';
 import { User } from '../interfaces/User';
 import { login } from '../services/AuthService';
 import { useRouter } from 'vue-router';
 
 export default defineComponent({
-    data() {
-        return {
-            user: {} as User
-        };
-    },
-    mounted() {
+    setup() {
         const router = useRouter();
-        const token = sessionStorage.getItem('userToken');
-        if (token) {
-            router.push({ name: 'Welcome' });
-        }
-    },
-    methods: {
-        async handleLogin() {
-            const res = await login(this.user);
-            if (res.status === 200) {
-                sessionStorage.setItem('userToken', res.data.token);
-                this.$router.push({ name: 'Welcome' });
+        const user = reactive<User>({
+            name: '',
+            email: '',
+            password: ''
+        });
+        const error = ref<string | null>(null);
+
+        const handleLogin = async () => {
+            try {
+                const res = await login(user);
+                if (res.status === 200) {
+                    sessionStorage.setItem('userToken', res.data.token);
+                    router.push({ name: 'Welcome' });
+                }
+            } catch (err) {
+                error.value = err instanceof Error ? err.message : 'Login failed';
             }
-        }
+        };
+
+        const checkAuth = () => {
+            const token = sessionStorage.getItem('userToken');
+            if (token) {
+                router.push({ name: 'Welcome' });
+            }
+        };
+
+        checkAuth();
+
+        return {
+            user,
+            error,
+            handleLogin
+        };
     }
 });
 </script>

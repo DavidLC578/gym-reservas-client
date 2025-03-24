@@ -40,7 +40,7 @@
 
 <script lang="ts">
 import { Class } from '@/interfaces/Class';
-import { defineComponent } from 'vue';
+import { defineComponent, ref } from 'vue';
 import { me } from '@/services/AuthService';
 import { createClass } from '@/services/ClassService';
 import DateTimePicker from '@vuepic/vue-datepicker';
@@ -50,30 +50,32 @@ export default defineComponent({
     components: {
         DateTimePicker
     },
-    data() {
+    setup() {
         const now = new Date();
         const minDate = new Date();
         const maxDate = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
 
+        const classData = ref({
+            name: '',
+            description: '',
+            location: '',
+            price: 0,
+            duration: 0,
+            start_time: now.toISOString(),
+            end_time: now.toISOString(),
+            max_participants: 0
+        } as Class);
+
         return {
             minDate,
             maxDate,
-            classData: {
-                name: '',
-                description: '',
-                location: '',
-                price: 0,
-                duration: 0,
-                start_time: now.toISOString().slice(0, 16).replace('T', ' '),
-                end_time: now.toISOString().slice(0, 16).replace('T', ' '),
-                max_participants: 0
-            } as Class
+            classData
         };
     },
     async mounted() {
         const token = sessionStorage.getItem('userToken');
         if (!token) {
-            this.$router.push({ name: 'Login' });
+            this.$router.push({ name: 'login' });
         }
         try {
             const user = await me();
@@ -88,9 +90,16 @@ export default defineComponent({
     methods: {
         async createClass() {
             try {
-                const res = await createClass(this.classData);
+                // Format dates to MySQL format (YYYY-MM-DD HH:MM:SS)
+                const formattedData = {
+                    ...this.classData,
+                    start_time: new Date(this.classData.start_time).toISOString().slice(0, 19).replace('T', ' '),
+                    end_time: new Date(this.classData.end_time).toISOString().slice(0, 19).replace('T', ' ')
+                };
+
+                const res = await createClass(formattedData);
                 if (res.status === 200) {
-                    this.$router.push({ name: 'Classes' });
+                    this.$router.push({ name: 'classes' });
                 }
             } catch (error) {
                 console.log(error);
