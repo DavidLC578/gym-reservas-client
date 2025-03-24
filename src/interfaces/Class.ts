@@ -3,7 +3,7 @@ export interface Class {
     name: string;
     description: string;
     location: string;
-    price: number;
+    price: string;
     duration: number;
     start_time: string;
     end_time: string;

@@ -7,8 +7,8 @@
                 v-model="classData.description" />
             <input type="text" placeholder="Location" class="p-2 border-2 border-gray-500 rounded text-gray-900"
                 v-model="classData.location" />
-            <input type="number" placeholder="Price" class="p-2 border-2 border-gray-500 rounded text-gray-900"
-                v-model="classData.price" />
+            <input type="text" placeholder="Price" class="p-2 border-2 border-gray-500 rounded text-gray-900"
+                v-model="classData.price" @input="validatePrice" />
             <input type="number" placeholder="Duration" class="p-2 border-2 border-gray-500 rounded text-gray-900"
                 v-model="classData.duration" />
             <div class="flex flex-col gap-2">
@@ -59,7 +59,7 @@ export default defineComponent({
             name: '',
             description: '',
             location: '',
-            price: 0,
+            price: '',
             duration: 0,
             start_time: now.toISOString(),
             end_time: now.toISOString(),
@@ -88,6 +88,14 @@ export default defineComponent({
         }
     },
     methods: {
+        validatePrice(e: Event) {
+            const target = e.target as HTMLInputElement;
+            const value = target.value;
+            // Allow only numbers and decimal point
+            if (!value.match(/^\d*\.?\d*$/)) {
+                target.value = value.slice(0, -1);
+            }
+        },
         async createClass() {
             try {
                 // Format dates to MySQL format (YYYY-MM-DD HH:MM:SS)
