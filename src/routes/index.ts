@@ -26,6 +26,11 @@ const routes: RouteRecordRaw[] = [
         path: '/classes',
         name: 'classes',
         component: () => import('@/pages/ClassPage.vue')
+    },
+    {
+        path: '/edit-class/:id',
+        name: 'edit-class',
+        component: () => import('@/pages/EditClass.vue')
     }
 ];
 
