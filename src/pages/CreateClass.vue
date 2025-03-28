@@ -19,7 +19,7 @@
                         start: '06:00',
                         step: '00:30',
                         end: '22:00'
-                    }" />
+                    }" :timezone="'-04:00'" />
             </div>
             <div class="flex flex-col gap-2">
                 <label class="text-gray-700">End time</label>
@@ -28,7 +28,7 @@
                         start: '06:00',
                         step: '00:30',
                         end: '22:00'
-                    }" />
+                    }" :timezone="'-04:00'" />
             </div>
             <input type="number" placeholder="Max participants"
                 class="p-2 border-2 border-gray-500 rounded text-gray-900" v-model="classData.max_participants" />
@@ -98,12 +98,20 @@ export default defineComponent({
         },
         async createClass() {
             try {
-                // Format dates to MySQL format (YYYY-MM-DD HH:MM:SS)
+                const adjustToLocalTime = (dateString: string) => {
+                    const date = new Date(dateString);
+                    date.setMinutes(date.getMinutes() - date.getTimezoneOffset()); // Adjust to local time zone
+                    return date.toISOString().slice(0, 19).replace('T', ' ');
+                };
+
                 const formattedData = {
                     ...this.classData,
-                    start_time: new Date(this.classData.start_time).toISOString().slice(0, 19).replace('T', ' '),
-                    end_time: new Date(this.classData.end_time).toISOString().slice(0, 19).replace('T', ' ')
+                    start_time: adjustToLocalTime(this.classData.start_time),
+                    end_time: adjustToLocalTime(this.classData.end_time),
+                    max_participants: this.classData.max_participants
                 };
+
+                console.log('Formatted Data:', formattedData);
 
                 const res = await createClass(formattedData);
                 if (res.status === 200) {
