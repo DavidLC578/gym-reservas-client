@@ -9,3 +9,5 @@ export const editClass = async (id: number, classData: Class) => await axiosInst
 export const getClasses = async () => await axiosInstanceWithToken.get('/classes');
 
 export const getClass = async (id: number) => await axiosInstanceWithToken.get(`/classes/${id}`);
+
+export const deleteClassById = async (id: number) => await axiosInstanceWithToken.delete(`/classes/${id}`);
