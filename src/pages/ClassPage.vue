@@ -64,7 +64,7 @@
                                     {{ new Date(cls.start_time).toLocaleString() }} -
                                     {{ new Date(cls.end_time).toLocaleString() }}
                                 </span>
-                                <button
+                                <button @click="openBookingModal(cls)"
                                     class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-full font-semibold transition-all">
                                     Book Now
                                 </button>
@@ -74,19 +74,40 @@
                 </div>
             </div>
         </div>
+
+        <!-- Booking Modal -->
+        <div v-if="selectedClass" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div class="bg-white rounded-lg p-6 w-96 relative">
+                <h2 class="text-xl font-bold mb-4">Book Class</h2>
+                <p class="text-gray-600 mb-4">Class: {{ selectedClass.name }}</p>
+                <p class="text-gray-600 mb-4">Price: ${{ selectedClass.price }}</p>
+
+                <div class="mt-6 flex justify-end space-x-4">
+                    <button @click="closeBookingModal"
+                        class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50">
+                        Cancel
+                    </button>
+                    <button @click="handleBooking(selectedClass.id)"
+                        class="px-4 py-2 bg-orange-500 text-white rounded-md hover:bg-orange-600">
+                        Confirm Booking
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
 </template>
 
 <script lang="ts">
 import { defineComponent, ref, onMounted } from 'vue';
 import { Class } from '@/interfaces/Class';
-import { getClasses, deleteClassById } from '@/services/ClassService';
+import { getClasses, deleteClassById, createBooking } from '@/services/ClassService';
 
 export default defineComponent({
     setup() {
         const classes = ref<Class[]>([]);
         const loading = ref(true);
         const error = ref<string | null>(null);
+        const selectedClass = ref<Class | null>(null);
 
         const fetchClasses = async () => {
             try {
@@ -99,6 +120,25 @@ export default defineComponent({
             } finally {
                 loading.value = false;
             }
+        };
+
+        const openBookingModal = (cls: Class) => {
+            selectedClass.value = cls;
+        };
+
+        const closeBookingModal = () => {
+            selectedClass.value = null;
+        };
+
+        const handleBooking = async (classId: number) => {
+            try {
+                const res = await createBooking(classId);
+                console.log(res);
+            } catch (error) {
+                console.error(error);
+            }
+            closeBookingModal();
+            await fetchClasses();
         };
 
         const deleteClass = async (classId: number) => {
@@ -116,7 +156,11 @@ export default defineComponent({
             classes,
             loading,
             error,
-            deleteClass
+            deleteClass,
+            selectedClass,
+            openBookingModal,
+            closeBookingModal,
+            handleBooking
         };
     }
 });
